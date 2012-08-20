@@ -1,0 +1,40 @@
+%p#notice= notice
+
+%p
+  %b Recorded:
+  = @snap.recorded
+%p
+  %b City:
+  = @snap.city
+
+- if @snap.summaries.size > 0 
+  <h2>summaries</h2>
+  - for summary in @snap.summaries do
+    = summary.name 
+    = summary.href
+  
+    - if summary.scopes.size > 0 
+      <p>scopes</p>
+      - for scope in summary.scopes do
+        = scope.direction 
+        = scope.speed
+        = scope.details
+        = scope.startX 
+        = scope.startY
+        = scope.endX
+        = scope.endY
+
+= simple_form_for [@snap, Summary.new] do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :name
+    = f.input :href
+    = f.input :desc
+
+  .form-actions
+    = f.button :submit
+
+= link_to 'Edit', edit_snap_path(@snap)
+\|
+= link_to 'Back', snaps_path
