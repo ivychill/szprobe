@@ -36,6 +36,10 @@ desc "run utils in daemon"
 daemon_script = current_path+'/script/daemon'
 production_env = 'RAILS_ENV=production '
 namespace :deploy do
+  task :proxy do
+    run production_env+daemon_script+" stop utils/goagent/proxy.py"
+    run production_env+daemon_script+" start utils/goagent/proxy.py"
+  end
   task :utils do
     for tsk in 1..10 do 
       worker = "utils/traffic-crawler-worker-"+tsk.to_s+".rb"

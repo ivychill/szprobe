@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+require File.expand_path("../../config/environment", __FILE__)
+require 'daemons'
+
+ENV["APP_ROOT"] ||= File.expand_path("#{File.dirname(__FILE__)}/..")
+ENV["RAILS_ENV"] ||= "development"
+ENV["RAILS_ENV_PATH"] ||= "#{ENV["APP_ROOT"]}/config/environment.rb"
+
+script = "#{ENV["APP_ROOT"]}/#{ARGV[1]}"
+
+pid_rep = "/tmp/szprobe/pids"
+begin
+	FileUtils.mkdir_p(pid_rep)
+rescue
+	puts "pids stored in the diretory: "+pid_rep
+end
+Dir.chdir Rails.root
+Daemons.run(script, dir_mode: :normal, dir: pid_rep) 
