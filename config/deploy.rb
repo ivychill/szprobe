@@ -1,5 +1,5 @@
-set :application, "set your application name here"
-set :repository,  "set your repository location here"
+require 'rvm/capistrano'
+require 'bundler/capistrano'
 
 set :application, "szprobe2"
 set :repository,  "git@github.com:ivychill/szprobe-2.x.git"
