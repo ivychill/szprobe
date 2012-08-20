@@ -5,5 +5,7 @@ Szprobe2::Application.routes.draw do
   root :to => "home#index"
   devise_for :users
   resources :users, :only => [:show, :index]
-  resources :snaps
+  resources :snaps do
+    resources :congested_roads
+  end
 end
