@@ -75,7 +75,7 @@ class SnapsController < ApplicationController
           #outbound = context.socket(ZMQ::DEALER)
           outbound = context.socket(ZMQ::DEALER)
           #outbound.connect("ipc://traffic.ipc-"+"traffic-crawler-worker-"+(1+tsk).to_s)
-          outbound.connect("tcp://localhost:910"+tsk.to_s)
+          outbound.connect("tcp://localhost:910"+(1+tsk).to_s)
           logger.debug "connected:"+"tcp://localhost:910"+tsk.to_s
           outbound.send_string "wake up"
           outbound_sockets.push outbound

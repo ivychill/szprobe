@@ -12,10 +12,10 @@ inbound = context.socket(ZMQ::ROUTER)
 puts "ipc://traffic.ipc-"+$worker_name
 #inbound.bind("ipc://traffic.ipc-"+$worker_name)
 inbound.bind("tcp://localhost:910"+$worker_id)
-outbound2local = context.socket(ZMQ::PUB)
-outbound2local.connect("tcp://localhost:6003")
-outbound2rc = context.socket(ZMQ::PUB)
-outbound2rc.connect("tcp://roadclouding.com:6003")
+$outbound2local = context.socket(ZMQ::PUB)
+$outbound2local.connect("tcp://localhost:6003")
+$outbound2rc = context.socket(ZMQ::PUB)
+$outbound2rc.connect("tcp://roadclouding.com:6003")
 
 def getAssignedTasks
 	assignedTasks = CrawlerTask.where(:carrier => $worker_name)
@@ -103,8 +103,8 @@ def fetchTrafficAndSave(task)
 		end
 		$mylogger.info "done one snap! "+task.snap_ts.to_s
 		puts road_traffics.to_json
-		outbound2local.send_string road_traffics.to_json if road_traffics.size>0
-		outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
+		$outbound2local.send_string road_traffics.to_json if road_traffics.size>0
+		$outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
 	rescue 
 		$mylogger.error "some errors happened:" + $!.to_s
 		return
