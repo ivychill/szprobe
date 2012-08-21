@@ -1,0 +1,2 @@
+class StaticRoadsController < ApplicationController
+end

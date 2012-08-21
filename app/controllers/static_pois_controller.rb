@@ -1,0 +1,2 @@
+class StaticPoisController < ApplicationController
+end
