@@ -8,4 +8,7 @@ Szprobe2::Application.routes.draw do
   resources :snaps do
     resources :congested_roads
   end
+  resources :static_roads do
+    resources :static_pois
+  end
 end

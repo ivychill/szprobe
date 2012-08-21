@@ -4,11 +4,14 @@ require 'httparty'
 
 $mylogger = Logger.new File.expand_path("../../log/traffic_crawler_worker.log", __FILE__)
 $worker_name = File.basename __FILE__, ".rb"
+$worker_name.match /(.*)(\d*)$/
+$worker_id = $2
 
 context = ZMQ::Context.new(1)
 inbound = context.socket(ZMQ::ROUTER)
 puts "ipc://traffic.ipc-"+$worker_name
-inbound.bind("ipc://traffic.ipc-"+$worker_name)
+#inbound.bind("ipc://traffic.ipc-"+$worker_name)
+inbound.bind("tcp://localhost:910"+$worker_id)
 outbound2local = context.socket(ZMQ::PUB)
 outbound2local.connect("tcp://localhost:6003")
 outbound2rc = context.socket(ZMQ::PUB)
@@ -21,7 +24,7 @@ end
 class Rep
   include HTTParty
   format :html
-  #http_proxy '127.0.0.1', 8087
+  http_proxy '127.0.0.1', 8087
 end
 
 $url_fixedpart = "http://wap.szicity.com/cm/jiaotong/szwxcsTrafficTouch/wap/roadInfo.do?roadid="
@@ -111,9 +114,9 @@ end
 loop do
 	$mylogger.debug "in loop "+$worker_name
 	msg = ""
+	task_list = getAssignedTasks
 	result = inbound.recv_string msg #first recv get peer address
 	result = inbound.recv_string msg #second one get the payload
-	task_list = getAssignedTasks
 	$mylogger.debug task_list.to_json if task_list
 	task_list.each do |task|
 		fetchTrafficAndSave(task)
