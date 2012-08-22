@@ -9,10 +9,6 @@ $worker_name.match /(.*)(\d*)$/
 $worker_id = $2
 
 context = ZMQ::Context.new(1)
-inbound = context.socket(ZMQ::ROUTER)
-puts "ipc://traffic.ipc-"+$worker_name
-#inbound.bind("ipc://traffic.ipc-"+$worker_name)
-inbound.bind("tcp://localhost:910"+$worker_id)
 $outbound2local = context.socket(ZMQ::PUB)
 $outbound2local.connect("tcp://localhost:6003")
 $outbound2rc = context.socket(ZMQ::PUB)
@@ -29,7 +25,8 @@ class Rep
 end
 
 $url_fixedpart = "http://wap.szicity.com/cm/jiaotong/szwxcsTrafficTouch/wap/roadInfo.do?roadid="
-$reg_direction = /(东向|西向|南向|北向|东南向|西南向|东北向|西北向)/
+#$reg_direction = /(东向|西向|南向|北向|东南向|西南向|东北向|西北向)/
+$reg_direction = /^.+向(:|：)/
 $reg_speed = /(\d*)km\/h/i
 
 #$last_checked = Time.now
@@ -68,7 +65,7 @@ def fetchTrafficAndSave(task)
 		    	#puts $url_fixedpart+road.href+road.rn
 		    	respHtml = Rep.get($url_fixedpart+road.href)
 			doc = Nokogiri::HTML(respHtml)
-		    	$mylogger.info doc
+			timeStamp = Time.now
 		    	#puts doc
 			doc.css("div.auto300 table tbody").each do |link|
 				  #puts link
@@ -89,21 +86,22 @@ def fetchTrafficAndSave(task)
 					  if $reg_speed.match(speedDesc)
 					  	speed = $1
 					  end
-					  road_traffic = genRoadTraffic road.rn, specifiedDesc
-					  road_traffic.spd = speed
-					  road_traffic.dir = direction
-					  road_traffic.road_id = road.href
-					  road_traffic.snap_ts = task.snap_ts
-					  road_traffic.duration = duration_lexical durationDesc
+					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :ts => timeStamp
+					  segment = genSegment_v3 road_traffic, specifiedDesc
+					  segment.spd = speed
+					  segment.dir = direction
+					  segment.duration = duration_lexical durationDesc
+					  segment.desc.gsub "DDDDD", direction
+					  segment.desc.gsub "TTTTT", duration
+					  segment.desc.gsub "SSSSS", speed
 					  road_traffic.save
 					  road_traffics.push road_traffic
-					  puts  "one traffic generated for "+road_traffic.to_json
 					  $mylogger.info "one traffic generated for "+road_traffic.to_json
 				   end
 			end
 		end
 		$mylogger.info "done one snap! "+task.snap_ts.to_s
-		puts road_traffics.to_json
+		#puts road_traffics.to_json
 		$outbound2local.send_string road_traffics.to_json if road_traffics.size>0
 		$outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
 	rescue 
@@ -116,8 +114,6 @@ loop do
 	$mylogger.debug "in loop "+$worker_name
 	msg = ""
 	task_list = getAssignedTasks
-	#result = inbound.recv_string msg #first recv get peer address
-	#result = inbound.recv_string msg #second one get the payload
 	$mylogger.debug task_list.to_json if task_list
 	task_list.each do |task|
 		fetchTrafficAndSave(task)
