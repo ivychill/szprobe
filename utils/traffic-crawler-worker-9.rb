@@ -1,6 +1,7 @@
 #encoding: utf-8
 require File.expand_path("../util_helper", __FILE__)
 require 'httparty'
+require 'nokogiri'
 
 $mylogger = Logger.new File.expand_path("../../log/traffic_crawler_worker.log", __FILE__)
 $worker_name = File.basename __FILE__, ".rb"
@@ -63,11 +64,11 @@ def fetchTrafficAndSave(task)
 	road_traffics = []
 	begin
 		task.crawler_links.each do |road|
-		    	#$mylogger.info $url_fixedpart+road.href
+		    	$mylogger.info $url_fixedpart+road.href
 		    	#puts $url_fixedpart+road.href+road.rn
 		    	respHtml = Rep.get($url_fixedpart+road.href)
 			doc = Nokogiri::HTML(respHtml)
-		    	#$mylogger.info doc
+		    	$mylogger.info doc
 		    	#puts doc
 			doc.css("div.auto300 table tbody").each do |link|
 				  #puts link
@@ -115,11 +116,12 @@ loop do
 	$mylogger.debug "in loop "+$worker_name
 	msg = ""
 	task_list = getAssignedTasks
-	result = inbound.recv_string msg #first recv get peer address
-	result = inbound.recv_string msg #second one get the payload
+	#result = inbound.recv_string msg #first recv get peer address
+	#result = inbound.recv_string msg #second one get the payload
 	$mylogger.debug task_list.to_json if task_list
 	task_list.each do |task|
 		fetchTrafficAndSave(task)
 		task.destroy
 	end
+	sleep 60
 end

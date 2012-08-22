@@ -64,28 +64,13 @@ class SnapsController < ApplicationController
           crawler_link.href = @snap.congested_roads[idx].href
           crawler_link.rn = @snap.congested_roads[idx].rn
         end
-          
-       context = ZMQ::Context.new(1)
-       outbound_sockets = []
-          
+        
         for tsk in 0..(slots-1)
           arrayCrawlerTasks[tsk].save
-          #notify them by zmq
-          #context = ZMQ::Context.new(1)
-          #outbound = context.socket(ZMQ::DEALER)
-          outbound = context.socket(ZMQ::DEALER)
-          #outbound.connect("ipc://traffic.ipc-"+"traffic-crawler-worker-"+(1+tsk).to_s)
-          outbound.connect("tcp://localhost:910"+(1+tsk).to_s)
-          logger.debug "connected:"+"tcp://localhost:910"+tsk.to_s
-          outbound.send_string "wake up"
-          outbound_sockets.push outbound
         end
         
-        outbound_sockets.each do |outbound|
-          outbound.close
-        end
-        context.terminate
-
+        #inform_workers_by_zmq slots
+          
         format.html { redirect_to @snap, notice: 'Snap was successfully created.' }
         format.json { render json: "succeeded!", status: :created, location: @snap }
       else
@@ -121,5 +106,42 @@ class SnapsController < ApplicationController
       format.html { redirect_to snaps_url }
       format.json { head :no_content }
     end
+  end
+  
+  def inform_workers_by_signal(slots)
+    for slot in 1..slots
+      worker_pid_file = "/tmp/szprobe/pids/traffic-crawler-worker-"+slot.to_s+".rb"
+      pid = File.read(worker_pid_file)
+      Process.kill "USR1", pid.to_i
+    end
+  end
+
+  def inform_workers_by_zmq(slots)
+       #context = ZMQ::Context.new(10)
+       #outbound_sockets = []
+          
+        for tsk in 0..(slots-1)
+          #notify them by zmq
+          context = ZMQ::Context.new(1)
+          #outbound = context.socket(ZMQ::DEALER)
+          outbound = context.socket(ZMQ::DEALER)
+          #outbound.connect("ipc://traffic.ipc-"+"traffic-crawler-worker-"+(1+tsk).to_s)
+          outbound.connect("tcp://localhost:910"+(1+tsk).to_s)
+          logger.debug "connected:"+"tcp://localhost:910"+tsk.to_s
+          puts "connected:"+"tcp://localhost:910"+tsk.to_s
+          outbound.send_string "wake up"
+          #outbound_sockets.push outbound
+          outbound.close
+          context.terminate
+        end
+        
+        puts "kkk"
+       # outbound_sockets.each do |outbound|
+       #   outbound.close
+       # end
+        puts "ffff"
+        #context.terminate
+        puts "dddd"
+
   end
 end
