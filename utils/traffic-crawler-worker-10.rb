@@ -65,7 +65,7 @@ def fetchTrafficAndSave(task)
 		    	#puts $url_fixedpart+road.href+road.rn
 		    	respHtml = Rep.get($url_fixedpart+road.href)
 			doc = Nokogiri::HTML(respHtml)
-			timeStamp = Time.now
+			timeStamp = Time.now.getlocal
 		    	#puts doc
 			doc.css("div.auto300 table tbody").each do |link|
 				  #puts link
@@ -91,16 +91,16 @@ def fetchTrafficAndSave(task)
 					  segment.spd = speed
 					  segment.dir = direction
 					  segment.duration = duration_lexical durationDesc
-					  segment.desc.gsub "DDDDD", direction
-					  segment.desc.gsub "TTTTT", duration
-					  segment.desc.gsub "SSSSS", speed
+					  segment.desc.gsub! /DDDDD/, direction
+					  segment.desc.gsub! /TTTTT/, segment.duration
+					  segment.desc.gsub! /SSSSS/, speed
 					  road_traffic.save
 					  road_traffics.push road_traffic
-					  $mylogger.info "one traffic generated for "+road_traffic.to_json
 				   end
 			end
 		end
 		$mylogger.info "done one snap! "+task.snap_ts.to_s
+		$mylogger.info "one traffic generated for "+road_traffics.to_json
 		#puts road_traffics.to_json
 		$outbound2local.send_string road_traffics.to_json if road_traffics.size>0
 		$outbound2rc.send_string road_traffics.to_json if road_traffics.size>0

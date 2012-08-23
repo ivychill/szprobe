@@ -5,5 +5,7 @@ class StaticPoi
   field :lat, type: String
   field :lng, type: String
   
+  field :fixed_at, type: Time
+  
   embedded_in :static_road
 end

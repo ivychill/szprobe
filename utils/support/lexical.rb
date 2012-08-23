@@ -22,7 +22,22 @@ end
 
 $reg_whitespace = /\s*/ #tab, return, space
 $reg_direction = /^.+向(:|：)/
-$reg_cross = /(道|路)?路口$/
+$reg_cross = /(街|道|路)?路口$/
+
+def format_poi_ref(roadname, ref)
+  road_tail = $reg_cross.match(ref)
+  formated_ref = ref
+  formated_ref = ref.gsub($reg_cross, "")<<road_tail.to_s[0] if road_tail
+  result = formated_ref.gsub roadname, ""
+  result.gsub! /(道){2}/, "道"
+  result.gsub! /(路){2}/, "路"
+  result.gsub! /道路/, "道"
+  result.gsub! /路道/, "路"
+  result.gsub! /街路/, "街"
+  result.gsub! $reg_direction, ""
+  result.gsub! /市区/, ""
+  result
+end
 
 def traffic_lexical_v2(roadname, traffic_desc)
   from_to_desc = traffic_desc.gsub($reg_whitespace, "").sub($reg_direction, "")
@@ -34,10 +49,11 @@ def traffic_lexical_v2(roadname, traffic_desc)
 
   for obj in objs_to_process do 
     #obj[:poi][:ref] = obj[:desc].dup #alternate for the next line
-    obj[:poi][:ref] = obj[:desc].clone
-    road_tail = $reg_cross.match(obj[:poi][:ref])
-    obj[:poi][:ref].gsub!($reg_cross, "")<<road_tail.to_s[0] if road_tail
-    obj[:poi][:ref].gsub! roadname, ""
+    #obj[:poi][:ref] = obj[:desc].clone
+    #road_tail = $reg_cross.match(obj[:poi][:ref])
+    #obj[:poi][:ref].gsub!($reg_cross, "")<<road_tail.to_s[0] if road_tail
+    #obj[:poi][:ref].gsub! roadname, ""
+    obj[:poi][:ref] = format_poi_ref roadname, obj[:desc]
     obj[:poi][:ref_type] = "路口" if ($reg_cross.match obj[:desc])
   end
 
@@ -78,10 +94,13 @@ end
 #puts duration_lexical("1时7分21s")
 
 #v2 test cases
-#puts traffic_lexical("上步路", " 北向: 红荔路口->笋岗西路路口\r\n\t\t\t\t\t  ")
-#puts traffic_lexical("福田南路", " 北向: 百合路福田南路口->皇岗海关\r\n\t\t\t\t\t  ")
-#puts traffic_lexical("北环大道", " 南山方向: 松岗收费站->沙江路口\r\n\t\t\t\t\t  ")
-#puts traffic_lexical("布澜路", " 西向: 布澜路扳雪岗大道路口->布澜路冲之大道路口\r\n\t\t\t\t\t  ")
-#puts traffic_lexical("布澜路", " 西向: 扳雪岗大道布澜路口->冲之大道布澜路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("上步路", " 北向: 红荔路口->笋岗西路路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("福田南路", " 北向: 百合路福田南路口->皇岗海关\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("北环大道", " 南山方向: 松岗收费站->沙江路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("布澜路", " 西向: 布澜路扳雪岗大道路口->布澜路冲之大道路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("布澜路", " 西向: 扳雪岗大道布澜路口->冲之大道布澜路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("布澜路", " 西向: 扳雪岗大道布澜路道路口->冲之大道布澜路口\r\n\t\t\t\t\t  ")
+
+#puts traffic_lexical_v2("文锦中路", "文锦中路市区凤凰路口->冲之大道文锦中路口\r\n\t\t\t\t\t  ")
 
 

@@ -1,4 +1,6 @@
 Szprobe2::Application.routes.draw do
+  get 'static_roads/fix'
+  
   authenticated :user do
     root :to => 'home#index'
   end

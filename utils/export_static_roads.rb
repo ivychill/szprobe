@@ -2,4 +2,9 @@
 require File.expand_path("../util_helper", __FILE__)
 require 'json'
 
-puts StaticRoad.all.to_json
+#$export_file = "static_roads-v2-frozen-20120822.json"
+$export_file = "static_roads-v2-frozen-20120823.json"
+
+File.open($export_file, "w") do |file|
+	file.puts StaticRoad.all.to_json
+end

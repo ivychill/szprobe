@@ -13,18 +13,32 @@ def fix_href
 	end
 end
 
-fix_href
+def check_null_href
+	StaticRoad.where(:href => nil).all.each do |static_road|
+		puts static_road.name
+	end
+end
 
-#json = File.read('db/static_roads.json')
-#roads = JSON.parse(json)
+def restore_static_roads_from_file
+	puts "Be cautious! will rebuild static roads. y/n?"
+	a=gets.chomp
+	exit unless a == 'y'
+	
+	json = File.read('static_roads-v2-frozen-20120822.json')
+	roads = JSON.parse(json)
+	
+	StaticRoad.all.each do |rs|
+		rs.destroy
+	end
+	
+	roads.each do |rd|
+		static_road = StaticRoad.find_or_create_by(:name => rd["name"], :href => rd["href"], :static_pois => rd["static_pois"])
+		static_road.save
+	end
+end
 
-#StaticRoad.all.each do |rs|
-#	rs.destroy
-#end
-
-#roads.each do |rd|
-#	static_road = StaticRoad.find_or_create_by(:name => rd["name"], :href => rd["href"], :static_pois => rd["static_pois"])
-#	static_road.save
-#end
+check_null_href
+#fix_href
+restore_static_roads_from_file
 
 

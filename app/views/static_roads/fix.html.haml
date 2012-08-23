@@ -1,0 +1,17 @@
+.row-fluid
+  .span3
+    %div#side_canvas
+      %table#tbl_roads
+        %tr
+          %th Name
+          %th Href
+          %th
+
+        - @static_roads.each do |static_road|
+          %tr
+            %td= static_road.name
+            %td= static_road.href
+            %td 
+              %button Show Pois
+  .span9
+    %div#map_canvas

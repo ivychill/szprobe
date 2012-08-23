@@ -108,6 +108,7 @@ class SnapsController < ApplicationController
     end
   end
   
+  #only for reference, these two methods have been deprecated!
   def inform_workers_by_signal(slots)
     for slot in 1..slots
       worker_pid_file = "/tmp/szprobe/pids/traffic-crawler-worker-"+slot.to_s+".rb"
