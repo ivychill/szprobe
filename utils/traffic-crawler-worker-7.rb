@@ -25,9 +25,6 @@ class Rep
 end
 
 $url_fixedpart = "http://wap.szicity.com/cm/jiaotong/szwxcsTrafficTouch/wap/roadInfo.do?roadid="
-#$reg_direction = /(东向|西向|南向|北向|东南向|西南向|东北向|西北向)/
-$reg_direction = /^.+向(:|：)/
-$reg_speed = /(\d*)km\/h/i
 
 #$last_checked = Time.now
 $interval_between_two_commit = 1*60
@@ -58,14 +55,13 @@ $interval_between_two_commit = 1*60
 def fetchTrafficAndSave(task)
 	$mylogger.info task.to_json
 	puts task.to_json
-	road_traffics = []
 	begin
+		timeStamp = Time.now
 		task.crawler_links.each do |road|
 		    	$mylogger.info $url_fixedpart+road.href
 		    	#puts $url_fixedpart+road.href+road.rn
 		    	respHtml = Rep.get($url_fixedpart+road.href)
 			doc = Nokogiri::HTML(respHtml)
-			timeStamp = Time.now
 		    	#puts doc
 			doc.css("div.auto300 table tbody").each do |link|
 				  #puts link
@@ -78,15 +74,9 @@ def fetchTrafficAndSave(task)
 					  specifiedDesc = wholeDetails[0].content;
 					  speedDesc = wholeDetails[1].content;
 					  durationDesc = wholeDetails[2].content;
-					  direction = ""
-					  if $reg_direction.match(specifiedDesc)
-					  	direction = $&
-					  end
-					  speed = ""
-					  if $reg_speed.match(speedDesc)
-					  	speed = $1
-					  end
-					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :ts => timeStamp, :ts_in_sec => timeStamp.to_i
+					  direction = direction_lexical specifiedDesc
+					  speed = format_speed speedDesc
+					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :crawler_id => $worker_id, :ts => timeStamp, :ts_in_sec => timeStamp.to_i
 					  segment = genSegment_v3 road_traffic, specifiedDesc
 					  segment.spd = speed
 					  segment.dir = direction
@@ -95,10 +85,10 @@ def fetchTrafficAndSave(task)
 					  segment.desc.gsub! /TTTTT/, segment.duration
 					  segment.desc.gsub! /SSSSS/, speed
 					  road_traffic.save
-					  road_traffics.push road_traffic
 				   end
 			end
 		end
+		road_traffics = RoadTraffic.where(:crawler_id => $worker_id, :ts => timeStamp)
 		$mylogger.info "done one snap! "+task.snap_ts.to_s
 		$mylogger.info "one traffic generated for "+road_traffics.to_json
 		#puts road_traffics.to_json

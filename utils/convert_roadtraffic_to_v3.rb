@@ -11,18 +11,28 @@ def destroy_all_roadtraffic
   end
 end
 
-def convert_roadtraffic_to_v3
-  for idx in 0..11
-    file_json = '/home/data/backup/szprobe-2.x/roadtraffic-v2-frozen-20120822-'+idx.to_s+'.json'
+def convert_roadtraffic_to_v3(filePath, fileNo)
+  beginTime = Time.now
+  for idx in 0..(fileNo-1)
+    file_json = filePath+'/roadtraffic-v2-frozen-20120822-'+idx.to_s+'.json'
     puts "converting "+file_json
     file = File.read(file_json)
     road_traffics = JSON.parse(file)
+    total_records = road_traffics.size
+    progress_idx = 0
     road_traffics.each do |road_traffic_v1|
+      progress_idx = progress_idx + 1
+      timeSpent = Time.now - beginTime
+      puts Time.now.to_s+" processing "+progress_idx.to_s+"/"+total_records.to_s+". Spent: "+timeSpent.to_s+"s." if progress_idx%100 == 0
       road_traffic_v2 = RoadTraffic.find_or_create_by :ts => road_traffic_v1["snap_ts"], :rid => road_traffic_v1["road_id"], :rn => road_traffic_v1["rn"]
-      road_traffic_v2.segments.new :dir => road_traffic_v1["dir"], :spd => road_traffic_v1["spd"], :duration => road_traffic_v1["duration"], 
-		                 :desc => road_traffic_v1["desc"], 
-		                 :s_lat => road_traffic_v1["s_poi_lat"], :s_lng => road_traffic_v1["s_poi_lng"], 
-		                 :e_lat => road_traffic_v1["e_poi_lat"], :e_lng => road_traffic_v1["e_poi_lng"]
+      road_traffic_v2.ts_in_sec = road_traffic_v2.ts.to_i
+      segment = genSegment_v3 road_traffic_v2, road_traffic_v1["desc"]
+      segment.spd = format_speed road_traffic_v1["spd"]
+      segment.dir = direction_lexical road_traffic_v1["desc"]
+      segment.duration = duration_lexical road_traffic_v1["desc"]
+      segment.desc.gsub! /DDDDD/, segment.dir if segment.dir
+      segment.desc.gsub! /TTTTT/, segment.duration if segment.duration
+      segment.desc.gsub! /SSSSS/, segment.spd if segment.spd
       
       road_traffic_v2.save
     end
@@ -32,6 +42,7 @@ end
 #2012.08.22
 destroy_all_roadtraffic
 convert_roadtraffic_to_v3
+#convert_roadtraffic_to_v3('../data-for-test', 1)
 
 
 

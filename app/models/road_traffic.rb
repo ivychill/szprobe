@@ -4,6 +4,7 @@ class RoadTraffic
   field :rn, type: String
   field :ts, type: Time
   field :ts_in_sec, type: String
+  field :crawler_id, type: String
   
   index({ts:1})
   

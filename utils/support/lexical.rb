@@ -19,10 +19,15 @@ def traffic_lexical(roadname, traffic_desc)
 	end
 	objs_to_process		
 end
+#puts traffic_lexical("教育中路", "北向: 兴华路教育中路口->教育中路吉祥路口")
+#puts traffic_lexical("教育中路", "南向: 兴华路教育中路口->教育中路联想大厦")
 
 $reg_whitespace = /\s*/ #tab, return, space
+#$reg_direction = /(东向|西向|南向|北向|东南向|西南向|东北向|西北向)/
 $reg_direction = /^.+向(:|：)/
 $reg_cross = /(街|道|路)?路口$/
+$reg_speed_en = /(\d*)km\/h/i
+$reg_speed_cn = /(\d*)公里每小时/
 
 def format_poi_ref(roadname, ref)
   road_tail = $reg_cross.match(ref)
@@ -38,6 +43,32 @@ def format_poi_ref(roadname, ref)
   result.gsub! /市区/, ""
   result
 end
+
+def format_speed(speedDesc)
+  speed = ""
+  if $reg_speed_en.match(speedDesc)
+    speed = $1
+  else 
+    if $reg_speed_cn.match(speedDesc)
+      speed = $1
+    end
+  end
+end
+#puts format_speed "15km/h"
+#puts format_speed "15Km/h"
+#puts format_speed "15公里每小时"
+
+def direction_lexical(specifiedDesc)
+  direction = ""
+  if $reg_direction.match(specifiedDesc)
+    direction = $&
+  end
+  direction.gsub! /(:|：)/, ""
+  direction.gsub! $reg_whitespace, ""
+end
+
+#puts direction_lexical "北向: 兴华路教育中路口->教育中路吉祥路口"
+#puts direction_lexical "南山方向: 兴华路教育中路口->教育中路吉祥路口"
 
 def traffic_lexical_v2(roadname, traffic_desc)
   from_to_desc = traffic_desc.gsub($reg_whitespace, "").sub($reg_direction, "")
@@ -60,6 +91,14 @@ def traffic_lexical_v2(roadname, traffic_desc)
   #puts objs_to_process.inspect
   objs_to_process    
 end
+#v2 test cases
+#puts traffic_lexical_v2("上步路", " 北向: 红荔路口->笋岗西路路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("福田南路", " 北向: 百合路福田南路口->皇岗海关\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("北环大道", " 南山方向: 松岗收费站->沙江路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("布澜路", " 西向: 布澜路扳雪岗大道路口->布澜路冲之大道路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("布澜路", " 西向: 扳雪岗大道布澜路口->冲之大道布澜路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("布澜路", " 西向: 扳雪岗大道布澜路道路口->冲之大道布澜路口\r\n\t\t\t\t\t  ")
+#puts traffic_lexical_v2("文锦中路", "文锦中路市区凤凰路口->冲之大道文锦中路口\r\n\t\t\t\t\t  ")
 
 def duration_lexical(duration)
   #1m57s -> 117
@@ -82,10 +121,8 @@ def duration_lexical(duration)
     sec = $1
     return sec.to_i
   end
+  ""
 end
-
-#puts traffic_lexical("教育中路", "北向: 兴华路教育中路口->教育中路吉祥路口")
-#puts traffic_lexical("教育中路", "南向: 兴华路教育中路口->教育中路联想大厦")
 #puts duration_lexical("201秒")
 #puts duration_lexical("1m21s")
 #puts duration_lexical("1分21s")
@@ -93,14 +130,5 @@ end
 #puts duration_lexical("66m21秒")
 #puts duration_lexical("1时7分21s")
 
-#v2 test cases
-#puts traffic_lexical_v2("上步路", " 北向: 红荔路口->笋岗西路路口\r\n\t\t\t\t\t  ")
-#puts traffic_lexical_v2("福田南路", " 北向: 百合路福田南路口->皇岗海关\r\n\t\t\t\t\t  ")
-#puts traffic_lexical_v2("北环大道", " 南山方向: 松岗收费站->沙江路口\r\n\t\t\t\t\t  ")
-#puts traffic_lexical_v2("布澜路", " 西向: 布澜路扳雪岗大道路口->布澜路冲之大道路口\r\n\t\t\t\t\t  ")
-#puts traffic_lexical_v2("布澜路", " 西向: 扳雪岗大道布澜路口->冲之大道布澜路口\r\n\t\t\t\t\t  ")
-#puts traffic_lexical_v2("布澜路", " 西向: 扳雪岗大道布澜路道路口->冲之大道布澜路口\r\n\t\t\t\t\t  ")
-
-#puts traffic_lexical_v2("文锦中路", "文锦中路市区凤凰路口->冲之大道文锦中路口\r\n\t\t\t\t\t  ")
 
 
