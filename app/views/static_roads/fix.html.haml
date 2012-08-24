@@ -1,17 +1,39 @@
 .row-fluid
-  .span3
-    %div#side_canvas
+  .span5
+    .row
+      = will_paginate @static_roads
+    .span2#roads_canvas
       %table#tbl_roads
         %tr
           %th Name
           %th Href
-          %th
 
         - @static_roads.each do |static_road|
           %tr
-            %td= static_road.name
-            %td= static_road.href
-            %td 
-              %button Show Pois
-  .span9
+            %td.rn= static_road.name
+            %td.href= static_road.href
+            %td.hiddenPois= static_road.static_pois.to_json
+            %td.hiddenRID= static_road._id
+    .span3#pois_canvas
+      %table#tbl_pois
+        %tr
+          %th Ref
+          %th Reftype
+          %th Lat
+          %th Lng
+
+        - @static_pois.each do |static_poi|
+          %tr.poi_content
+            %td.ref= static_poi.ref
+            %td.ref_type= static_poi.ref_type
+            %td.lat= static_poi.lat
+            %td.lng= static_poi.lng
+            %td.hiddenRID= "rid"
+            %td.hiddenPoiID= static_poi._id
+  .span7
+    %br
+    %br
+    %br
+    %br
     %div#map_canvas
+    

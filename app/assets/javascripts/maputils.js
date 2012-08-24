@@ -12,6 +12,7 @@ function initMap() {
 	var trafficLayer = new BMap.TrafficLayer();
 	//map.addTileLayer(trafficLayer);
 	map.setMinZoom(12);
+	map.addControl(new BMap.NavigationControl());
         // update the navbar title using jQuery
         $('#marker-nav .marker-title')
             .html("...Navigator Bar Here...")
@@ -31,9 +32,25 @@ function get_lat_lng(filter1, filter2, filter_type, cbk_fn) {
 function addMarker(latlong, title, content) {
 	var marker = new BMap.Marker(latlong, {icon:activedIcon});
 	map.addOverlay(marker);
-	var infoWindow = new BMap.InfoWindow(content);
 
 	//marker.addEventListener('click', function() {
 	//	this.openInfoWindow(infoWindow);
 	//});
 }
+
+function addMarkerDraggable(latlong, title, content, onMoveCallback, pullMarkerInstance) {
+	var marker = new BMap.Marker(latlong, {icon:activedIcon, enableDragging: true});
+	map.addOverlay(marker);
+	pullMarkerInstance(marker);
+	marker.addEventListener("dragend", onMoveCallback); 
+	//var infoWindow = new BMap.InfoWindow(content);
+
+	//marker.addEventListener('click', function() {
+	//	this.openInfoWindow(infoWindow);
+	//});
+}
+
+function removeMarker(marker) {
+	map.removeOverlay(marker);
+}
+

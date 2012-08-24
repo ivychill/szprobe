@@ -5,15 +5,104 @@ addrs = null
 startIndex = 0
 resolved_pois = 0
 to_be_resolved_pois = []
-global_timer = 0;
+global_timer = 0
+global_marker = null
 
 $(document).ready ->
-	#initMap()
+	initMap()
 	#when get all static_roads(index view), call ajax.get to fetch all roads with Pois
 	if ($(location).attr('pathname').match /static_roads(\/)?$/)
 		allroads = get_all_roads()
 	else if ($(location).attr('pathname').match /fix(\/)?$/)
-		alert("fixing")
+		$('tr:even').removeClass().addClass("even_tr")
+		$('.th').removeClass().addClass("th")
+		$('#roads_canvas tr').click( ->
+			return $(this).listPois())
+		$('#pois_canvas tr').click( ->
+			return $(this).panelToPoint())
+		$('#pois_canvas tr').dblclick( ->
+			$(this).updatePoi())
+$.fn.updatePoi = () ->
+	thisObj = $(this)
+	poi_url = "/static_roads/"+$('.hiddenRID', thisObj).text()+"/static_pois/"+$('.hiddenPoiID', thisObj).text()
+	poi_obj = {ref:$('.ref', thisObj).text(), ref_type:$('.ref_type', thisObj).text(), lat: $('.lat', thisObj).text(), lng: $('.lng', thisObj).text()}
+	#$.ajax({type:'PUT', url: poi_url, data: poi_obj, dataType: "json", success:null})
+	$.ajax({
+		type: 'PUT',
+		url: poi_url,
+		data: poi_obj,
+		success: ->
+			return
+		,
+		dataType: "json"
+		})							
+	#alert(poi_url)
+	return
+
+$.fn.listPois = () ->
+	thisObj = $(this)
+	str_static_pois = $('.hiddenPois', thisObj).text()
+	#alert(static_pois)
+	static_pois = eval('(' + str_static_pois + ')')
+	#alert(static_pois[0].lat)
+	
+	$('#pois_canvas #tbl_pois tr').remove()
+	#$('#pois_canvas').append("<table id=tbl_pois></table>")
+	$('#pois_canvas #tbl_pois').append("<tr><th>Ref</th><th>Reftype</th><th>lat</th><th>lng</th></tr>")
+	#alert(static_pois.length)
+	for ii in [0..static_pois.length-1]
+		$('#pois_canvas #tbl_pois tbody').append("<tr class='poi_content' id='poi_"+ii+"'></tr>")
+		tr_id = "#pois_canvas #tbl_pois tbody #poi_"+ii
+		$(tr_id).append("<td class='ref'>"+static_pois[ii].ref+"</td>")
+		$(tr_id).append("<td class='ref_type'>"+static_pois[ii].ref_type+"</td>")
+		$(tr_id).append("<td class='hiddenRID'>"+$(".hiddenRID", thisObj).text()+"</td>")
+		$(tr_id).append("<td class='hiddenPoiID'>"+static_pois[ii]._id+"</td>")
+		$(tr_id).append("<td class='lat'>"+static_pois[ii].lat+"</td>")
+		$(tr_id).append("<td class='lng'>"+static_pois[ii].lng+"</td></tr>")
+
+	$('tr:even').removeClass().addClass("even_tr")
+	$('.th').removeClass().addClass("th")
+	
+	$('#pois_canvas tr').click( ->
+		return $(this).panelToPoint())
+	$('#pois_canvas tr').dblclick( ->
+		$(this).updatePoi())
+	return
+
+$.fn.panelToPoint = () ->
+	thisObj = $(this)
+	lat = $('.lat', thisObj).text()
+	lng = $('.lng', thisObj).text()
+	ref = $('.ref', thisObj).text()
+	if lat && lng && lat != "" && lng != "" && lat != "null" && lng != "null"
+		point = new BMap.Point(parseFloat(lng), parseFloat(lat))
+		removeMarker(global_marker)
+		addMarkerDraggable(point, ref, ref, (event) -> 
+				newlng = event.point.lng
+				newlat = event.point.lat
+				$('.lat', thisObj).empty().text(newlat)
+				$('.lng', thisObj).empty().text(newlng)
+			(marker) ->
+				global_marker = marker)
+		map.setZoom(19)
+		map.panTo(point)
+	else
+		map.addEventListener("click", (event) ->
+				point = new BMap.Point(event.point.lng, event.point.lat)
+				$('.lat', thisObj).empty().text(event.point.lat)
+				$('.lng', thisObj).empty().text(event.point.lng)
+				removeMarker(global_marker)
+				addMarkerDraggable(point, ref, ref, (event) -> 
+						newlng = event.point.lng
+						newlat = event.point.lat
+						$('.lat', thisObj).empty().text(newlat)
+						$('.lng', thisObj).empty().text(newlng)
+					(marker) ->
+						global_marker = marker)
+			)
+	
+	return
+	
 
 processRoads = (data) ->
 	#str_road = ''

@@ -65,7 +65,7 @@ def fetchTrafficAndSave(task)
 		    	#puts $url_fixedpart+road.href+road.rn
 		    	respHtml = Rep.get($url_fixedpart+road.href)
 			doc = Nokogiri::HTML(respHtml)
-			timeStamp = Time.now.getlocal
+			timeStamp = Time.now
 		    	#puts doc
 			doc.css("div.auto300 table tbody").each do |link|
 				  #puts link
@@ -86,7 +86,7 @@ def fetchTrafficAndSave(task)
 					  if $reg_speed.match(speedDesc)
 					  	speed = $1
 					  end
-					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :ts => timeStamp
+					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :ts => timeStamp, :ts_in_sec => timeStamp.to_i
 					  segment = genSegment_v3 road_traffic, specifiedDesc
 					  segment.spd = speed
 					  segment.dir = direction

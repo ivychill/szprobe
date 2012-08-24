@@ -51,7 +51,9 @@ class StaticRoadsController < ApplicationController
   end
 
   def fix
-    @static_roads = StaticRoad.all.limit(20)
+    #@static_roads = StaticRoad.all.limit(20)
+    @static_roads = StaticRoad.all.paginate :page => params[:page], :per_page => 11
+    @static_pois = [] #@static_roads.first.static_pois
     
     respond_to do |format|
       format.html # fix.html.erb

@@ -13,10 +13,26 @@ body {
     font-family: Arial;
 }
 
-	#map_canvas {
-		height: 100%;
-		border: 1px solid black;
+@mixin tableHover {
+	tbody td:hover {
+		  background: #FFD800;
+		  border: 1px solid #03476F;
+		  color: #FFFFFF;
 	}
+	tbody td:hover th,
+	tbody td.odd:hover th {
+		background: #FFD800;
+		color: #FFFFFF;
+	}
+}
+
+@mixin tableRowHover {
+	tbody tr:hover {
+		  background: #FFD800;
+		  border: 1px solid #03476F;
+		  color: #FFFFFF;
+	}
+}
 
 /* marker navigation bar */
 #marker-nav {
@@ -60,19 +76,58 @@ body {
 
 #map_canvas {
     width: 100%;
-    height: 960px;
+    height: 480px;
     border: none;
 }
 
-#side_canvas {
-    width: 100%;
-    height: 960px;
+#roads_canvas{
+    width: 25%;
+}
+#pois_canvas{
+    width: 68%;
+}
+#pagination_canvas{
+    width: 90%;
+}
+.hiddenPois, .hiddenPoiID, .hiddenRID {
+    display: none;
+}
+
+#pois_canvas, #roads_canvas {
+    height: 480px;
     border: none;
     background: rgba(255, 255, 255, 0.9);
+			@include tableRowHover;
+			.even_tr {
+				background-color: rgba(63, 69, 103, 1); 
+			}
+			tr {
+				height: 35px;
+				th {
+					background-color: rgba(63, 49, 73, 1);
+				}
+				td, th{
+					border: 1px solid #03476F;
+					padding: 0px 0px 0px 0px;
+					word-wrap: break-word;
+					margin: 0px 0px;
+					overflow: hidden;
+				}
+			}
 }
 
 #tbl_roads {
+    width: 100%;
     background: rgba(33, 69, 123, 0.8);
+    color: white;
+    /* add the 'mandatory' border radius */
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    -webkit-border-radius: 12px;
+}
+
+#tbl_pois {
+    width: 100%;
+    background: rgba(50, 69, 123, 0.8);
     color: white;
     /* add the 'mandatory' border radius */
     border: 2px solid rgba(255, 255, 255, 0.2);
