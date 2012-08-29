@@ -41,10 +41,12 @@ namespace :deploy do
     run production_env+daemon_script+" start utils/goagent/proxy.rb"
   end
   task :utils do
-    for tsk in 1..10 do 
-      worker = "utils/traffic-crawler-worker-"+tsk.to_s+".rb"
-      run production_env+daemon_script+" stop "+worker
-      run production_env+daemon_script+" start "+worker
-    end
+    #for tsk in 1..10 do 
+    #  worker = "utils/traffic-crawler-worker-"+tsk.to_s+".rb"
+    #  run production_env+daemon_script+" stop "+worker
+    #  run production_env+daemon_script+" start "+worker
+    #end
+    run "utils/worker_services.sh production stop all"
+    run "utils/worker_services.sh production start all"
   end
 end
