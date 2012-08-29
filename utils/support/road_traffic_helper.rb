@@ -28,9 +28,11 @@ def get_lat_lng(road_name, poi_ref)
 end
 
 #formated desc: “拥堵路段：从 南山大道路口 到 北环大道路口，方向：西向，预计通行时间：130秒，速度：20km/h
+#formated desc: “前方拥堵：从 南山大道路口 到 北环大道路口，西向
 def genSegment_v3(road_traffic, desc)
   objs_to_process = traffic_lexical_v2(road_traffic.rn, desc)
-  formated_desc = "拥堵路段：从"+objs_to_process[0][:poi][:ref]+"到"+objs_to_process[1][:poi][:ref]+"，方向：DDDDD"+"，预计通行时间：TTTTT秒"+"，速度：SSSSSkm/h"
+  #formated_desc = "拥堵路段：从"+objs_to_process[0][:poi][:ref]+"到"+objs_to_process[1][:poi][:ref]+"，方向：DDDDD"+"，预计通行时间：TTTTT秒"+"，速度：SSSSSkm/h"
+  formated_desc = "前方拥堵：从"+objs_to_process[0][:poi][:ref]+"到"+objs_to_process[1][:poi][:ref]+"，DDDDD"
   #objs_to_process = [{:desc=>from_ref, :poi => startPoi}, {:desc => to_ref, :poi => endPoi}]
   start_lat_lng = get_lat_lng(road_traffic.rn, objs_to_process[0][:poi][:ref])
   end_lat_lng = get_lat_lng(road_traffic.rn, objs_to_process[1][:poi][:ref])

@@ -82,8 +82,8 @@ def fetchTrafficAndSave(task)
 					  segment.dir = direction
 					  segment.duration = duration_lexical durationDesc
 					  segment.desc.gsub! /DDDDD/, direction
-					  segment.desc.gsub! /TTTTT/, segment.duration
-					  segment.desc.gsub! /SSSSS/, speed
+					  #segment.desc.gsub! /TTTTT/, segment.duration
+					  #segment.desc.gsub! /SSSSS/, speed
 					  road_traffic.save
 				   end
 			end
