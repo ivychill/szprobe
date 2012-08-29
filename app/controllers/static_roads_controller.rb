@@ -50,9 +50,23 @@ class StaticRoadsController < ApplicationController
 #    end
   end
 
+  def fetch_null_latlng
+    static_roads = []
+    StaticRoad.all.each do |static_road|
+    	next unless static_road.static_pois
+    	static_road.static_pois.each do |static_poi|
+    	  next if static_poi.lat && static_poi.lng
+    	  static_roads.push static_road
+    	  break
+    	end
+    end
+    static_roads
+  end
+  
   def fix
-    #@static_roads = StaticRoad.all.limit(20)
-    @static_roads = StaticRoad.all.paginate :page => params[:page], :per_page => 11
+    #@static_roads = StaticRoad.all.paginate :page => params[:page], :per_page => 11
+    @static_roads = fetch_null_latlng.paginate :page => params[:page], :per_page => 11
+    #puts @static_roads.to_json
     @static_pois = [] #@static_roads.first.static_pois
     
     respond_to do |format|

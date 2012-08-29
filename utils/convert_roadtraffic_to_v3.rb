@@ -3,7 +3,7 @@ require File.expand_path("../util_helper", __FILE__)
 require 'json'
 
 def destroy_all_roadtraffic
-  puts "it will destory all road_traffic! be cautious! y/n"
+  puts "it may destory all road_traffic! be cautious! Yes to destroy/No to skip destroy but continue importing./Control-C to stop."
   a = gets.chomp
   return unless (a == "y")
   RoadTraffic.all.each do |road_traffic|
@@ -13,7 +13,7 @@ end
 
 def convert_roadtraffic_to_v3(filePath, fileNo)
   beginTime = Time.now
-  for idx in 0..(fileNo-1)
+  for idx in 1..(fileNo-1)
     file_json = filePath+'/roadtraffic-v2-frozen-20120822-'+idx.to_s+'.json'
     puts "converting "+file_json
     file = File.read(file_json)
@@ -41,8 +41,8 @@ end
 
 #2012.08.22
 destroy_all_roadtraffic
-convert_roadtraffic_to_v3
-#convert_roadtraffic_to_v3('../data-for-test', 1)
+#convert_roadtraffic_to_v3 "/home/data/backup/szprobe-2.x", 12
+convert_roadtraffic_to_v3('../data-for-test', 11)
 
 
 

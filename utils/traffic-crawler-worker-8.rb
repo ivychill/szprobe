@@ -5,8 +5,8 @@ require 'nokogiri'
 
 $mylogger = Logger.new File.expand_path("../../log/traffic_crawler_worker.log", __FILE__)
 $worker_name = File.basename __FILE__, ".rb"
-$worker_name.match /(.*)(\d*)$/
-$worker_id = $2
+#$worker_name.match /(.*)(\d*)$/
+#$worker_id = $2
 
 context = ZMQ::Context.new(1)
 $outbound2local = context.socket(ZMQ::PUB)
@@ -76,7 +76,7 @@ def fetchTrafficAndSave(task)
 					  durationDesc = wholeDetails[2].content;
 					  direction = direction_lexical specifiedDesc
 					  speed = format_speed speedDesc
-					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :crawler_id => $worker_id, :ts => timeStamp, :ts_in_sec => timeStamp.to_i
+					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :crawler_id => $worker_name, :ts => timeStamp, :ts_in_sec => timeStamp.to_i
 					  segment = genSegment_v3 road_traffic, specifiedDesc
 					  segment.spd = speed
 					  segment.dir = direction
@@ -88,7 +88,7 @@ def fetchTrafficAndSave(task)
 				   end
 			end
 		end
-		road_traffics = RoadTraffic.where(:crawler_id => $worker_id, :ts => timeStamp)
+		road_traffics = RoadTraffic.where(:crawler_id => $worker_name, :ts => timeStamp)
 		$mylogger.info "done one snap! "+task.snap_ts.to_s
 		$mylogger.info "one traffic generated for "+road_traffics.to_json
 		#puts road_traffics.to_json
