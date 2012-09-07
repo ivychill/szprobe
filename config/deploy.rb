@@ -46,7 +46,7 @@ namespace :deploy do
     #  run production_env+daemon_script+" stop "+worker
     #  run production_env+daemon_script+" start "+worker
     #end
-    run "utils/worker_services.sh production stop all"
-    run "utils/worker_services.sh production start all"
+    run current_path+"utils/worker_services.sh production stop all"
+    run current_path+"utils/worker_services.sh production start all"
   end
 end
