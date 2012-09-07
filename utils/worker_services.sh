@@ -5,7 +5,8 @@ fi
 
 echo "this script has to be executed within the app_home, waiting 3 seconds to continue or press control-c to stop..."
 sleep 3
-DAEMON=`pwd`/script/daemon
+APP_HOME=/home/caiqingfeng/webapps/szprobe2/current
+DAEMON="${APP_HOME}/script/daemon"
 if [ $3 = "all" ]; then
   for i in {1..10}; do
     script_rb="utils/traffic-crawler-worker-${i}.rb"
