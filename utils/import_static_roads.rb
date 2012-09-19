@@ -24,7 +24,8 @@ def restore_static_roads_from_file
 	a=gets.chomp
 	exit unless a == 'y'
 	
-	json = File.read('static_roads-v2-frozen-20120822.json')
+	#json = File.read('static_roads-v2-frozen-20120822.json')
+	json = File.read('static_roads-v2-frozen-20120906.json')
 	roads = JSON.parse(json)
 	
 	StaticRoad.all.each do |rs|

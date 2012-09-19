@@ -1,3 +1,4 @@
+#encoding: utf-8
 class StaticRoadsController < ApplicationController
   def index
     @roads = StaticRoad.all
@@ -63,9 +64,18 @@ class StaticRoadsController < ApplicationController
     static_roads
   end
   
+  def fetch_hotroads
+    hotroads = ["北环大道", "梅观高速", "南海大道", "滨海路", "滨河大道", "皇岗路", "新洲路", #"叶",
+    		"沙河西路", "红荔路", "南坪快速", "福龙路", "香蜜湖路", "彩田路", "后海大道", #"陈",
+    		"南山创业路", "宝安创业路", "南山大道", "留仙大道", "广深公路", "金田路", "扳雪岗大道", "布龙公路"]#, "蔡"
+    static_roads = []
+    static_roads = StaticRoad.any_in(name: hotroads)
+  end
+  
   def fix
     #@static_roads = StaticRoad.all.paginate :page => params[:page], :per_page => 11
-    @static_roads = fetch_null_latlng.paginate :page => params[:page], :per_page => 11
+    #@static_roads = fetch_null_latlng.paginate :page => params[:page], :per_page => 11
+    @static_roads = fetch_hotroads.paginate :page => params[:page], :per_page => 11
     #puts @static_roads.to_json
     @static_pois = [] #@static_roads.first.static_pois
     
