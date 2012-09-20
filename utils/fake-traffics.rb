@@ -19,11 +19,14 @@ $outbound2rc.connect("tcp://roadclouding.com:6003")
 
 def genFakeTraffic_ns
 	begin
-		road_traffic = RoadTraffic.new :rid => "R03012", :rn => "南山大道", :ts => Time.now, :ts_in_sec => Time.now.to_i, :crawler_id =>  "traffic-crawler-worker-1"
-		road_traffic.segments.new :dir => "蛇口方向", :spd => "15", :duration => "224", :desc => "（测试）前方拥堵：从桃园路到桂庙路，蛇口方向", :s_lat => "22.538141", :s_lng => "113.931375", :e_lat => "22.529976", :e_lng => "113.930125"
-		puts road_traffic.to_json
-		$outbound2local.send_string road_traffic.to_json 
-		$outbound2rc.send_string road_traffic.to_json 
+		road_traffic1 = RoadTraffic.new :rid => "R03012", :rn => "南山大道", :ts => Time.now, :ts_in_sec => Time.now.to_i, :crawler_id =>  "traffic-crawler-worker-1"
+		road_traffic1.segments.new :dir => "蛇口方向", :spd => "15", :duration => "224", :desc => "（TEST）前方拥堵：从桃园路到桂庙路，蛇口方向", :s_lat => "22.538141", :s_lng => "113.931375", :e_lat => "22.529976", :e_lng => "113.930125"
+		road_traffic2 = RoadTraffic.new :rid => "S130129", :rn => "福龙路", :ts => Time.now, :ts_in_sec => Time.now.to_i, :crawler_id =>  "traffic-crawler-worker-1"
+		road_traffic2.segments.new :dir => "北向", :spd => "15", :duration => "224", :desc => "（TEST）拥堵路段：从北环香蜜立交桥北到福龙山隧道南口，方向：北向，预计通行时间：55秒，速度：14km/h", :s_lat => "22.565483", :s_lng => "114.026068", :e_lat => "22.571991", :e_lng => "114.023589"
+		road_traffics = [road_traffic1, road_traffic2]
+		puts road_traffics.to_json
+		$outbound2local.send_string road_traffics.to_json 
+		$outbound2rc.send_string road_traffics.to_json 
 
 	rescue 
 		$mylogger.error "some errors happened:" + $!.to_s
@@ -36,8 +39,8 @@ end
 
 def genFakeTraffic_fl
 	begin
-		road_traffic = RoadTraffic.new :rid => "S130129", :rn => "福龙路", :ts => Time.now, :ts_in_sec => Time.now.to_i, :crawler_id =>  "traffic-crawler-worker-1"
-		road_traffic.segments.new :dir => "北向", :spd => "15", :duration => "224", :desc => "（测试）拥堵路段：从北环香蜜立交桥北到福龙山隧道南口，方向：北向，预计通行时间：55秒，速度：14km/h", :s_lat => "22.565483", :s_lng => "114.026068", :e_lat => "22.571991", :e_lng => "114.023589"
+		road_traffic2 = RoadTraffic.new :rid => "S130129", :rn => "福龙路", :ts => Time.now, :ts_in_sec => Time.now.to_i, :crawler_id =>  "traffic-crawler-worker-1"
+		road_traffic2.segments.new :dir => "北向", :spd => "15", :duration => "224", :desc => "（测试）拥堵路段：从北环香蜜立交桥北到福龙山隧道南口，方向：北向，预计通行时间：55秒，速度：14km/h", :s_lat => "22.565483", :s_lng => "114.026068", :e_lat => "22.571991", :e_lng => "114.023589"
 		puts road_traffic.to_json
 		$outbound2local.send_string road_traffic.to_json 
 		$outbound2rc.send_string road_traffic.to_json 
@@ -50,6 +53,6 @@ end
 
 loop do
 	genFakeTraffic_ns
-	genFakeTraffic_fl
+	#genFakeTraffic_fl
 	sleep 60
 end
