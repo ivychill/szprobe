@@ -1,5 +1,5 @@
 if [ $# != 3 ]; then
-  echo "$0 <production|development|test> <start|stop|run> <all|1|2|3|n>"
+  echo "$0 <production|development|test> <start|stop|run> <all|link|1|2|3|n>"
   exit
 fi
 
@@ -12,6 +12,8 @@ fi
 
 DAEMON="${APP_HOME}/script/daemon"
 if [ $3 = "all" ]; then
+  script_rb="utils/wap-links-crawler.rb"
+  RAILS_ENV=$1 $DAEMON $2 ${script_rb}
   for i in {1..10}; do
     #script_rb="utils/traffic-crawler-worker-${i}.rb"
     script_rb="utils/wap-traffic-crawler-worker-${i}.rb"
@@ -19,7 +21,11 @@ if [ $3 = "all" ]; then
     RAILS_ENV=$1 $DAEMON $2 ${script_rb}
   done
 else
-  script_rb="utils/wap-traffic-crawler-worker-$3.rb"
+  if [ $3 = "link" ]; then
+    script_rb="utils/utils/wap-links-crawler.rb"
+  elif
+    script_rb="utils/wap-traffic-crawler-worker-$3.rb"
+  fi
   echo "$0 $1 $2 ${script_rb}"
   RAILS_ENV=$1 $DAEMON $2 ${script_rb}
 fi
