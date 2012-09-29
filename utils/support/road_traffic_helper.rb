@@ -41,6 +41,22 @@ def genSegment_v3(road_traffic, desc)
   				:e_lat => end_lat_lng[:lat], :e_lng => end_lat_lng[:lng]
 end
 
+#formated desc: “拥堵路段：从 南山大道路口 到 北环大道路口，方向：西向，预计通行时间：130秒，速度：20km/h
+#formated desc: “前方拥堵：从 南山大道路口 到 北环大道路口，西向
+#泰然九路目前拥堵路段北向：泰然九路泰然四路口->时代科技大厦 速度：10km/h通行时间：1分钟40秒北向：泰然九路泰然六路口->泰然九路泰然四路口 速度：9km/h通行时间：1分钟16秒
+def genSegment_wap_v1(road_traffic, seg)
+  formated_desc = "从"+seg[:start][:ref]+"到"+seg[:end][:ref]+seg[:direction]
+  start_lat_lng = get_lat_lng(road_traffic.rn, seg[:start][:ref])
+  end_lat_lng = get_lat_lng(road_traffic.rn, seg[:end][:ref])
+  segment = road_traffic.segments.new :desc => formated_desc,
+  				:s_lat => start_lat_lng[:lat], :s_lng => start_lat_lng[:lng],
+  				:e_lat => end_lat_lng[:lat], :e_lng => end_lat_lng[:lng]
+  segment.spd = seg[:speed]
+  segment.dir = seg[:direction]
+  segment.duration = seg[:duration]
+  segment
+end
+
 #puts genRoadTraffic("教育中路", "北向: 兴华路教育中路口->教育中路吉祥路口").to_json
 #puts genRoadTraffic("教育中路", "南向: 兴华路教育中路口->教育中路联想大厦").to_json
 

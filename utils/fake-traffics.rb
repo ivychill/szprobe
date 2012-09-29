@@ -10,9 +10,9 @@ $worker_name = File.basename __FILE__, ".rb"
 
 context = ZMQ::Context.new(1)
 $outbound2local = context.socket(ZMQ::PUB)
-$outbound2local.connect("tcp://localhost:6003")
+$outbound2local.connect("tcp://localhost:7003")
 $outbound2rc = context.socket(ZMQ::PUB)
-$outbound2rc.connect("tcp://roadclouding.com:6003")
+$outbound2rc.connect("tcp://roadclouding.com:7003")
 
 #<RoadTraffic _id: 5052875c1e391b333400dfca, _type: nil, rid: "R03012", rn: "南山大道", ts: 2012-09-14 01:24:42 UTC, ts_in_sec: "1347585882", crawler_id: "traffic-crawler-worker-1"> 
 #<Segment _id: 5052875c1e391b333400dfcb, _type: nil, dir: "蛇口方向", spd: "15", duration: "224", desc: "前方拥堵：从桃园路到桂庙路，蛇口方向", s_lat: "22.538141", s_lng: "113.931375", e_lat: "22.529976", e_lng: "113.930125">] 

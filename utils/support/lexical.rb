@@ -4,6 +4,7 @@ $reg_desc = /(东向|西向|东南向|东北向|西南向|西北向|南向|北�
 $reg_tsr = /(\t|\r|\n| )*/ #tab, space, return
 $reg_cross_road = /路口/
 $reg_two_roads = /(.*路)(.*路)/
+$traffic_prefix = /目前拥堵路段/
 
 def traffic_lexical(roadname, traffic_desc)
 	from_and_to = traffic_desc.split /->/
@@ -100,6 +101,7 @@ end
 #puts traffic_lexical_v2("布澜路", " 西向: 扳雪岗大道布澜路道路口->冲之大道布澜路口\r\n\t\t\t\t\t  ")
 #puts traffic_lexical_v2("文锦中路", "文锦中路市区凤凰路口->冲之大道文锦中路口\r\n\t\t\t\t\t  ")
 
+
 def duration_lexical(duration)
   #1m57s -> 117
   #1分57秒 -> 117
@@ -130,5 +132,57 @@ end
 #puts duration_lexical("66m21秒")
 #puts duration_lexical("1时7分21s")
 
+def traffic_lexical_wap_v1(raw_content, title_or_segments)
+  #puts raw_content
+  raw_content.gsub! $reg_whitespace, ""
+  formated_raw_content = raw_content.dup
+  roadname = ""
+  title_or_segments.each do |ts|
+  	ts.gsub! $reg_whitespace, ""
+  	#puts "ts="+ts
+  	if ts.match $traffic_prefix
+  		raw_content.gsub! ts, "" 
+  		roadname = ts.gsub $traffic_prefix, ""
+  	else
+  		formated_raw_content.gsub! ts, "%"
+  	end
+  end
+  #puts raw_content
+  #puts formated_raw_content
+  speed_and_duration = formated_raw_content.split /%/
+  speed_and_duration.each do |sd|
+  	next if !sd || sd.length == 0
+  	raw_content.gsub! sd, sd+"%"
+  end
+  #puts raw_content
+  new_desc = raw_content.split /%/
+  segments = []
+  new_desc.each do |nd|
+  	#puts nd
+  	origina_desc = nd.dup
+  	next if !nd || nd.length == 0
+	speed_and_duration.each do |sd|
+  		next if !sd || sd.length == 0
+	  	nd.gsub! sd, ""
+	end
+  	start_end = nd.split /->/
+	seg = { :desc => origina_desc,  
+		:speed => format_speed(origina_desc),
+		:direction => direction_lexical(origina_desc),
+		:duration => duration_lexical(origina_desc),
+		:start => {:ref=>"", :ref_type=>""}, 
+		:end => {:ref=>"", :ref_type=>""}}
+	seg[:start][:ref] = format_poi_ref roadname, start_end[0]
+    	seg[:start][:ref_type] = "路口" if ($reg_cross.match start_end[0])
+	seg[:end][:ref] = format_poi_ref roadname, start_end[1]
+    	seg[:end][:ref_type] = "路口" if ($reg_cross.match start_end[1])
+	segments.push seg
+  end
+
+  segments    
+end
+#wap_v1 test cases
+#puts traffic_lexical_wap_v1("泰然九路目前拥堵路段北向：泰然九路泰然四路口->时代科技大厦 速度：10km/h通行时间：1分钟40秒南向：泰然九路泰然六路口->滨海大道泰然九路口 速度：9km/h通行时间：1分钟16秒", ["泰然九路目前拥堵路段", "北向：泰然九路泰然四路口->时代科技大厦 ", "南向：泰然九路泰然六路口->滨海大道泰然九路口 "])
+#puts traffic_lexical_wap_v1("泰然九路目前拥堵路段北京方向：泰然九路泰然四路口->时代科技大厦 速度：101km/h通行时间：1小时2分钟40秒南向：泰然九路泰然六路口->滨海大道泰然九路口 速度：9km/h通行时间：1分钟16秒", ["泰然九路目前拥堵路段", "北京方向：泰然九路泰然四路口->时代科技大厦 ", "南向：泰然九路泰然六路口->滨海大道泰然九路口 "])
 
 
