@@ -22,8 +22,8 @@ if [ $3 = "all" ]; then
   done
 else
   if [ $3 = "link" ]; then
-    script_rb="utils/utils/wap-links-crawler.rb"
-  elif
+    script_rb="utils/wap-links-crawler.rb"
+  else
     script_rb="utils/wap-traffic-crawler-worker-$3.rb"
   fi
   echo "$0 $1 $2 ${script_rb}"

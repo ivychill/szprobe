@@ -32,25 +32,25 @@ $worker_name = File.basename __FILE__, ".rb"
 $global_snap_ts = Time.now
 
 def assignTasks(road, wap_url, sequence)
-	#assignedTasks = CrawlerTask.where(:carrier => $worker_name)
-	task = CrawlerTask.find_or_create_by :carrier => "wap-traffic-crawler-worker-"+(sequence%10+1).to_s, :status => 0
-	if !task.snap_ts 
-		task.snap_ts = $global_snap_ts
-	else
-		if ($global_snap_ts-task.snap_ts).abs >= 300000
-			task = CrawlerTask.find_or_create_by :carrier => "wap-traffic-crawler-worker-"+(sequence%10+1).to_s, :status => 0, :snap_ts => $global_snap_ts 
-		end
-	end
-	static_road = StaticRoad.where(:name=>road).first
-	href = ""
-	if !static_road 
-		$mylogger.error road+" is not in database!"
-	else
-		href = static_road.href
-	end
-	task.snap_ts = Time.now
-	task.crawler_links.new :rn => road, :wap_url => wap_url, :href => href
-	task.save
+  #assignedTasks = CrawlerTask.where(:carrier => $worker_name)
+  task = CrawlerTask.find_or_create_by :carrier => "wap-traffic-crawler-worker-"+(sequence%10+1).to_s, :status => 0
+  if !task.snap_ts 
+    task.snap_ts = $global_snap_ts
+  else
+    if ($global_snap_ts-task.snap_ts).abs >= 300000
+      task = CrawlerTask.find_or_create_by :carrier => "wap-traffic-crawler-worker-"+(sequence%10+1).to_s, :status => 0, :snap_ts => $global_snap_ts 
+    end
+  end
+  static_road = StaticRoad.where(:name=>road).first
+  href = ""
+  if !static_road 
+    $mylogger.error road+" is not in database!"
+  else
+    href = static_road.href
+  end
+  task.snap_ts = Time.now
+  task.crawler_links.new :rn => road, :wap_url => wap_url, :href => href
+  task.save
 end
 
 class Rep
@@ -76,70 +76,72 @@ $retrieving_counts = 0
 #也有可能是网上交警
 
 def fetch_url_of_all_roads
-	if $retrieving_counts % 20 != 0
-		return
-	end
-	respHtml = Rep.get($wap_city_homepage)
-	doc = Nokogiri::HTML(respHtml)
-	#puts doc
-	doc.css("div.nav a").each do |link|
-		#puts link
-		#puts link.content
-		if link.content == "交通"
-			puts link.content
-			puts link['href']
-			entry_url = link['href']
-			newRespHtml = Rep.get(entry_url)
-			road_doc = Nokogiri::HTML(newRespHtml)
-			road_doc.css("table.nav a").each do |nav|
-				puts "kkkk"
-				puts nav.content
-				if nav.content == "路况"
-					traffic_url = nav['href']
-					traffic_html = Rep.get "http://wap.szicity.com"+traffic_url
-					traffic_doc = Nokogiri::HTML(newRespHtml)
-					traffic_doc.css("h2 div.more a").each do |newlink|
-						puts newlink
-						if newlink.content == "更多"
-							$wap_links_url = newlink['href']
-							return
-						end
-					end
-				end
-			end
-		end
-	end
+  if $retrieving_counts % 20 != 0
+    return
+  end
+  begin
+    respHtml = Rep.get($wap_city_homepage)
+    doc = Nokogiri::HTML(respHtml)
+    doc.css("div.nav a").each do |link|
+      if link.content == "交通"
+        entry_url = link['href']
+        newRespHtml = Rep.get(entry_url)
+        road_doc = Nokogiri::HTML(newRespHtml)
+        road_doc.css("table.nav a").each do |nav|
+          if nav.content == "路况"
+            traffic_url = nav['href']
+            traffic_html = Rep.get "http://wap.szicity.com"+traffic_url
+            traffic_doc = Nokogiri::HTML(newRespHtml)
+            traffic_doc.css("h2 div.more a").each do |newlink|
+              if newlink.content == "更多"
+                $wap_links_url = newlink['href']
+                $mylogger.info "updated entry links: "+$wap_links_url
+                return
+              end
+            end
+          end
+        end
+      end
+    end
+  rescue
+    $mylogger.error "some errors happened:" + $!.to_s
+    return
+  end
 end
 
 def fetch_links
-	all_links = $wap_links_url
-	if !$wap_links_url.match(/http/)
-		all_links = "http://wap.szicity.com"+$wap_links_url
-	end
-	respHtml = Rep.get(all_links)
-	doc = Nokogiri::HTML(respHtml)
-	#puts doc
-	seq = 0
-	doc.css("div.daolu a").each do |link|
-		#puts link
-		assignTasks link.content, "http://wap.szicity.com"+link['href'], seq
-		seq = seq + 1
-	end
-	puts seq.to_s+" roads in traffic jam"
+  all_links = $wap_links_url
+  if !$wap_links_url.match(/http/)
+    all_links = "http://wap.szicity.com"+$wap_links_url
+  end
+  begin
+    respHtml = Rep.get(all_links)
+    doc = Nokogiri::HTML(respHtml)
+    seq = 0
+    doc.css("div.daolu a").each do |link|
+      #puts link
+      assignTasks link.content, "http://wap.szicity.com"+link['href'], seq
+      seq = seq + 1
+    end
+  rescue
+    $mylogger.error "some errors happened:" + $!.to_s
+    return
+  end
+  #puts seq.to_s+" roads in traffic jam"
 end
 
 loop do
-	$global_snap_ts = Time.now
-	puts $global_snap_ts
-	puts $wap_links_url
-	fetch_url_of_all_roads
-	puts $wap_links_url
-	
-	fetch_links
-	$retrieving_counts = $retrieving_counts+1
-	puts $retrieving_counts
+  $global_snap_ts = Time.now
+  #puts $global_snap_ts
+  #puts $wap_links_url
+  fetch_url_of_all_roads
+  #puts $wap_links_url
+  
+  fetch_links
+  $retrieving_counts = $retrieving_counts+1
+  #puts $retrieving_counts
 
-	sleep 300
+  sleep 300
 end
 exit
 

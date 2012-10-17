@@ -5,16 +5,16 @@ set :application, "szprobe2"
 set :repository,  "git@github.com:ivychill/szprobe-2.x.git"
 
 set :scm, :git
-set :user, "caiqingfeng"
-set :deploy_to, "/home/caiqingfeng/webapps/#{application}"
+set :user, "roadclouding"
+set :deploy_to, "/home/www/#{application}"
 set :keep_release, 5
 set :rvm_type, :system
 set :use_sudo, false
 
-role :web, "luyun-server.com"                          # Your HTTP server, Apache/etc
-role :app, "luyun-server.com"                          # This may be the same as your `Web` server
-role :db,  "luyun-server.com", :primary => true # This is where Rails migrations will run
-role :db,  "luyun-server.com"
+role :web, "roadclouding.com"                          # Your HTTP server, Apache/etc
+role :app, "roadclouding.com"                          # This may be the same as your `Web` server
+role :db,  "roadclouding.com", :primary => true # This is where Rails migrations will run
+role :db,  "roadclouding.com"
 
 
 # if you want to clean up old releases on each deploy uncomment this:
