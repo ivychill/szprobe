@@ -42,12 +42,12 @@ $worker_name = File.basename __FILE__, ".rb"
 context = ZMQ::Context.new(1)
 $outbound2local = context.socket(ZMQ::PUB)
 $outbound2local.connect("tcp://localhost:6003")
-$outbound2rc = context.socket(ZMQ::PUB)
-$outbound2rc.connect("tcp://roadclouding.com:6003")
+#$outbound2rc = context.socket(ZMQ::PUB)
+#$outbound2rc.connect("tcp://roadclouding.com:6003")
 $new_outbound2local = context.socket(ZMQ::PUB)
 $new_outbound2local.connect("tcp://localhost:7003")
-$new_outbound2rc = context.socket(ZMQ::PUB)
-$new_outbound2rc.connect("tcp://roadclouding.com:7003")
+#$new_outbound2rc = context.socket(ZMQ::PUB)
+#$new_outbound2rc.connect("tcp://roadclouding.com:7003")
 
 def getAssignedTasks
 	assignedTasks = CrawlerTask.where(:carrier => $worker_name, :status => 0)
@@ -74,10 +74,11 @@ def fetchTrafficAndSave(task)
 		timeStamp = Time.now
 		puts "links="+task.crawler_links.to_s
 		task.crawler_links.each do |road|
-		    	#$mylogger.info road.wap_url
-		    	respHtml = Rep.get(road.wap_url)
+      road_traffics = []
+		  #$mylogger.info road.wap_url
+		  respHtml = Rep.get(road.wap_url)
 			doc = Nokogiri::HTML(respHtml)
-		    	#puts doc
+		  #puts doc
 			doc.css("div.detail").each do |link|
 				  puts link
 				  traffic_desc = link.css("hh")
@@ -95,17 +96,18 @@ def fetchTrafficAndSave(task)
 					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :crawler_id => $worker_name, :ts => timeStamp, :ts_in_sec => timeStamp.to_i
 					  segment = genSegment_wap_v1 road_traffic, seg_desc
 					  road_traffic.save
+            road_traffics.push road_traffic
 				  end
 			end
+      #road_traffics = RoadTraffic.where(:crawler_id => $worker_name, :ts => timeStamp)
+      $mylogger.info "done one snap! "+task.snap_ts.to_s
+      $mylogger.info "one traffic generated for "+road_traffics.to_json
+      #puts road_traffics.to_json
+      $outbound2local.send_string road_traffics.to_json if road_traffics.size>0
+      #$outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
+      $new_outbound2local.send_string road_traffics.to_json if road_traffics.size>0
+      #$new_outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
 		end
-		road_traffics = RoadTraffic.where(:crawler_id => $worker_name, :ts => timeStamp)
-		$mylogger.info "done one snap! "+task.snap_ts.to_s
-		$mylogger.info "one traffic generated for "+road_traffics.to_json
-		#puts road_traffics.to_json
-		$outbound2local.send_string road_traffics.to_json if road_traffics.size>0
-		$outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
-		$new_outbound2local.send_string road_traffics.to_json if road_traffics.size>0
-		$new_outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
 	rescue 
 		$mylogger.error "some errors happened:" + $!.to_s
 		return
