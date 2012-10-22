@@ -59,3 +59,4 @@ gem "daemons"
 gem "simple_form"
 gem "will_paginate", '~> 3.0'
 gem "nokogiri"
+gem "protobuf"
