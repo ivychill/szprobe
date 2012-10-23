@@ -56,7 +56,7 @@ end
 class Rep
   include HTTParty
   format :html
-  http_proxy '127.0.0.1', 8087
+  #http_proxy '127.0.0.1', 8087
 end
 
 #$url_fixedpart = "http://wap.szicity.com/cm/jiaotong/szwxcsTrafficTouch/wap/roadInfo.do?roadid="
@@ -136,11 +136,13 @@ loop do
   #puts $wap_links_url
   fetch_url_of_all_roads
   #puts $wap_links_url
+  if $global_snap_ts.hour < 22 && $global_snap_ts.hour >= 6
+    fetch_links
+  end
   
-  fetch_links
   $retrieving_counts = $retrieving_counts+1
   #puts $retrieving_counts
-
+  
   sleep 300
 end
 exit

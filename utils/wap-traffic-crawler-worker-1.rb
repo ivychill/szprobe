@@ -46,8 +46,8 @@ $outbound2local.connect("tcp://localhost:6003")
 #$outbound2rc.connect("tcp://roadclouding.com:6003")
 $new_outbound2local = context.socket(ZMQ::PUB)
 $new_outbound2local.connect("tcp://localhost:7003")
-#$new_outbound2rc = context.socket(ZMQ::PUB)
-#$new_outbound2rc.connect("tcp://roadclouding.com:7003")
+$new_outbound2rc = context.socket(ZMQ::PUB)
+$new_outbound2rc.connect("tcp://roadclouding.com:7003")
 
 def getAssignedTasks
 	assignedTasks = CrawlerTask.where(:carrier => $worker_name, :status => 0)
@@ -56,7 +56,7 @@ end
 class Rep
   include HTTParty
   format :html
-  http_proxy '127.0.0.1', 8087
+  #http_proxy '127.0.0.1', 8087
 end
 
 $wap_city_homepage = "http://wap.szicity.com/index.php/city_xuan/city_short/"
@@ -106,7 +106,7 @@ def fetchTrafficAndSave(task)
       $outbound2local.send_string road_traffics.to_json if road_traffics.size>0
       #$outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
       $new_outbound2local.send_string road_traffics.to_json if road_traffics.size>0
-      #$new_outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
+      $new_outbound2rc.send_string road_traffics.to_json if road_traffics.size>0
 		end
 	rescue 
 		$mylogger.error "some errors happened:" + $!.to_s
