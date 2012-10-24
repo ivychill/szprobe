@@ -18,23 +18,21 @@ def get_msgs
   
   $router.recv_string($source)
   $router.recv_string($raw_points)
+  puts $source
+  puts $raw_points
   # messages is an array of ZMQ::Message objects
 end
 
 def handle_msgs
   traffic_stream = TrafficStream.new :source => $source, :received_at => Time.now
-  traffic_report = Com::Luyun::Whereareyou::Shared::LYTrafficReport.new
+  traffic_report = Tss::LYTrafficReport.new
   traffic_report.parse_from_string $raw_points
   #traffic_report.
   
-  $messages
 end
 
 loop do
   get_msgs
-  if $messages.size != 2
-    $mylogger.error "wrong message"
-  end
   handle_msgs
 end
 exit

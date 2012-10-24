@@ -56,7 +56,7 @@ end
 class Rep
   include HTTParty
   format :html
-  #http_proxy '127.0.0.1', 8087
+  http_proxy '127.0.0.1', 8087
 end
 
 #$url_fixedpart = "http://wap.szicity.com/cm/jiaotong/szwxcsTrafficTouch/wap/roadInfo.do?roadid="
@@ -131,10 +131,12 @@ def fetch_links
 end
 
 loop do
+  $mylogger.debug "link-crawler in loop "
   $global_snap_ts = Time.now
   #puts $global_snap_ts
   #puts $wap_links_url
   fetch_url_of_all_roads
+  $mylogger.debug "link-crawler "+$wap_links_url
   #puts $wap_links_url
   if $global_snap_ts.hour < 22 && $global_snap_ts.hour >= 6
     fetch_links

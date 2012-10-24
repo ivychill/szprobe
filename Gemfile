@@ -61,3 +61,4 @@ gem "will_paginate", '~> 3.0'
 gem "nokogiri"
 #gem "protobuf"
 gem "ruby_protobuf"
+#gem "ruby-protocol-buffers"
