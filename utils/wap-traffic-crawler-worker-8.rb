@@ -78,6 +78,7 @@ def fetchTrafficAndSave(task)
 		  #$mylogger.info road.wap_url
 		  respHtml = Rep.get(road.wap_url)
 			doc = Nokogiri::HTML(respHtml)
+			road_traffic = nil
 		  #puts doc
 			doc.css("div.detail").each do |link|
 				  puts link
@@ -95,10 +96,10 @@ def fetchTrafficAndSave(task)
 				  segment_traffics.each do |seg_desc|
 					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :crawler_id => $worker_name, :ts => timeStamp, :ts_in_sec => timeStamp.to_i
 					  segment = genSegment_wap_v1 road_traffic, seg_desc
-					  road_traffic.save
-            road_traffics.push road_traffic
 				  end
 			end
+      road_traffic.save if road_traffic != nil
+      road_traffics.push road_traffic if road_traffic != nil
       #road_traffics = RoadTraffic.where(:crawler_id => $worker_name, :ts => timeStamp)
       $mylogger.info "done one snap! "+task.snap_ts.to_s
       $mylogger.info "one traffic generated for "+road_traffics.to_json
