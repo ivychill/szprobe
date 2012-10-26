@@ -93,8 +93,10 @@ def fetchTrafficAndSave(task)
 				  #得到分析后的结果hash: [{speed=>9, direction=>"北向", duration=>160, desc=>"" ...}, ..]
 				  segment_traffics = traffic_lexical_wap_v1 raw_content, title_or_segments
 				  #puts segment_traffics
+				  if segment_traffics && segment_traffics.size>0
+            road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :crawler_id => $worker_name, :ts => timeStamp, :ts_in_sec => timeStamp.to_i
+				  end
 				  segment_traffics.each do |seg_desc|
-					  road_traffic = RoadTraffic.find_or_create_by :rn => road.rn, :rid => road.href, :crawler_id => $worker_name, :ts => timeStamp, :ts_in_sec => timeStamp.to_i
 					  segment = genSegment_wap_v1 road_traffic, seg_desc
 				  end
 			end
