@@ -145,7 +145,7 @@ loop do
   $retrieving_counts = $retrieving_counts+1
   #puts $retrieving_counts
   
-  sleep 300
+  sleep 180
 end
 exit
 
