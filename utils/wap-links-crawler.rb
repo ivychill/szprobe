@@ -104,7 +104,7 @@ def fetch_url_of_all_roads
       end
     end
   rescue
-    $mylogger.error "some errors happened:" + $!.to_s
+    $mylogger.error "wap-links-crawler, some errors happened:" + $!.to_s
     return
   end
 end
