@@ -14,7 +14,7 @@ $outbound2local.connect("tcp://localhost:6003")
 #
 day_of_today = Date.today.day
 day_of_2012_dec = Date.new 2012, 12, day_of_today
-$mylogger.info "A fresh new day! "+day_of_2012_dec.to_s
+$mylogger.info "A fresh new day! "+Time.now.to_s
 road_traffics = RoadTraffic.where(:ts.gte => day_of_2012_dec, :ts.lte => day_of_2012_dec+1.day)
 
 #gen traffic every 1 minute
@@ -33,5 +33,5 @@ road_traffics.each do |rt|
   end
 end
 
-$mylogger.info "Done today! "+road_traffics.size.to_s+","+Date.today.to_s
+$mylogger.info "Done today! "+road_traffics.size.to_s+","+Time.now.to_s
 
